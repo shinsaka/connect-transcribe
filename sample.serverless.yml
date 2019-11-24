@@ -1,0 +1,44 @@
+service: connect-trans
+
+custom:
+  defaultProfile: default
+
+provider:
+  name: aws
+  runtime: python3.8
+  profile: ${opt:profile, self:custom.defaultProfile}
+
+  environment:
+    PYTHONPATH: site-packages
+    SLACK_API_TOKEN: <slack api token>
+    SLACK_POST_CHANNEL: <slack post channel>
+
+  stage: prod
+  region: ap-northeast-1
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:Get*
+        - s3:Put*
+        - transcribe:StartTranscriptionJob
+      Resource: "*"
+
+functions:
+  do:
+    handler: lambda_function.handler
+    events:
+      - s3:
+          bucket: <s3 bucket for call recordings>
+          existing: true
+          event: s3:ObjectCreated:Put
+          rules:
+            - prefix: <prefix call recodings>
+            - suffix: .wav
+      - s3:
+          bucket: <s3 bucket for call recordings>
+          existing: true
+          event: s3:ObjectCreated:Put
+          rules:
+            - suffix: .wav.json
+    timeout: 60
