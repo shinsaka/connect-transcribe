@@ -1,4 +1,4 @@
-def get_transcribed_contexts(transcribed_dict):
+def get_transcribed_contents(transcribed_dict):
     # iterator for sorted contexts
     ch_name = None
     start_time = 0

@@ -11,8 +11,7 @@ def handler(event, context):
         if is_wav(rec):
             start_transcription_job(rec)
         if is_json(rec):
-            contexts = get_transcribed_contexts(rec)
-            post_messages(contexts)
+            post_messages(get_transcribed_contents(rec))
 
     return {}
 
@@ -47,17 +46,17 @@ def start_transcription_job(rec):
         }
     )
 
-def get_transcribed_contexts(rec):
+def get_transcribed_contents(rec):
     """
     return: iterator element=(start_time, ch_name, content )
     """
     s3 = boto3.resource('s3')
     obj_response = s3.Object(rec['s3']['bucket']['name'], rec['s3']['object']['key']).get()
-    return transcribe_utils.get_transcribed_contexts(json.load(obj_response['Body']))
+    return transcribe_utils.get_transcribed_contents(json.load(obj_response['Body']))
 
 
-def post_messages(contexts):
-    for ch_data in contexts:
+def post_messages(contents):
+    for ch_data in contents:
         if ch_data[1] == 'ch_0':
             slack.post_customer(ch_data[2])
         else:
