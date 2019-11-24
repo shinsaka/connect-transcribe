@@ -21,6 +21,9 @@ def _get_channel_items(transcribed_dict):
     # iterator for channel items from transcribed json
     for channel in transcribed_dict['results']['channel_labels']['channels']:
         for item in channel['items']:
+            if 'start_time' not in item:
+                continue
+
             yield (
                 float(item['start_time']),
                 channel['channel_label'],
